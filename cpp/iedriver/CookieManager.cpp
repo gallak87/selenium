@@ -321,17 +321,38 @@ BrowserCookie CookieManager::ParsePersistentCookieInfo(const std::string& cookie
 
   BrowserCookie cookie_to_return;
   cookie_to_return.set_name(cookie_parts[0]);
+  if (cookie_parts.size() < 2) {
+	  return cookie_to_return;
+  }
   cookie_to_return.set_value(cookie_parts[1]);
 
+  if (cookie_parts.size() < 3) {
+	  return cookie_to_return;
+  }
+
   size_t position = cookie_parts[2].find_first_of("/");
+  if (position == std::string::npos) {
+	  return cookie_to_return;
+  }
+
   cookie_to_return.set_domain(cookie_parts[2].substr(0, position));
   cookie_to_return.set_path(cookie_parts[2].substr(position));
+
+  if (cookie_parts.size() < 4) {
+	  return cookie_to_return;
+  }
 
   int flags = atoi(cookie_parts[3].c_str());
   cookie_to_return.set_is_secure(INTERNET_COOKIE_IS_SECURE == (INTERNET_COOKIE_IS_SECURE & flags));
   cookie_to_return.set_is_httponly(INTERNET_COOKIE_HTTPONLY == (INTERNET_COOKIE_HTTPONLY & flags));
 
+  if (cookie_parts.size() < 5) {
+	  return cookie_to_return;
+  }
   unsigned long expiry_time_low = strtoul(cookie_parts[4].c_str(), NULL, 10);
+  if (cookie_parts.size() < 6) {
+	  return cookie_to_return;
+  }
   unsigned long expiry_time_high = strtoul(cookie_parts[5].c_str(), NULL, 10);
   unsigned long long expiration_time = (expiry_time_high * static_cast<long long>(pow(2.0, 32))) + expiry_time_low;
 
